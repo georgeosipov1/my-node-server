@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Форма отправки</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 50px;
+      }
+      form {
+        display: inline-block;
+        text-align: left;
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+      }
+      input,
+      button {
+        display: block;
+        width: 100%;
+        margin: 10px 0;
+        padding: 10px;
+      }
+      button {
+        background: #28a745;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Оставьте свои данные</h2>
+    <form id="uploadForm">
+      <input
+        type="text"
+        id="name"
+        name="name"
+        placeholder="Ваше имя"
+        required
+      />
+      <input
+        type="tel"
+        id="phone"
+        name="phone"
+        placeholder="Телефон"
+        required
+      />
+      <input type="file" id="files" name="files" multiple required />
+      <button type="submit">Отправить</button>
+    </form>
+
+    <script>
+      document
+        .getElementById("uploadForm")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault();
+          const formData = new FormData(this);
+          try {
+            let response = await fetch("http://localhost:5000/upload", {
+              method: "POST",
+              body: formData,
+            });
+            if (response.ok) {
+              alert("Форма успешно отправлена!");
+            } else {
+              alert("Ошибка при отправке формы");
+            }
+          } catch (error) {
+            console.error("Ошибка:", error);
+          }
+        });
+    </script>
+  </body>
+</html>
