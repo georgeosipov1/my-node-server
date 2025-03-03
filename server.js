@@ -3,36 +3,25 @@ const multer = require("multer");
 const nodemailer = require("nodemailer");
 const cors = require("cors");
 const path = require("path");
-const fs = require("fs");
-require("dotenv").config({ path: path.resolve(__dirname, ".env") });
+require("dotenv").config();
 
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
-app.get("/", (req, res) => {
-  res.send("🚀 Сервер работает на Render!");
-});
-
 app.use(cors());
 app.use(express.json());
 
-// Проверяем, загружается ли .env
-console.log("🔍 Проверяем наличие .env файла...");
-console.log(
-  "Файл .env существует?",
-  fs.existsSync(path.resolve(__dirname, ".env"))
-);
-console.log("📢 EMAIL_USER:", process.env.EMAIL_USER || "❌ НЕ НАЙДЕН");
-console.log(
-  "📢 EMAIL_PASS:",
-  process.env.EMAIL_PASS ? "✅ НАЙДЕН" : "❌ НЕ НАЙДЕН"
-);
+// Раздаем статику (HTML, CSS, JS)
+app.use(express.static("public"));
 
+// Обработчик главной страницы
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// Обработчик загрузки файлов и отправки email
 app.post("/upload", upload.array("files"), async (req, res) => {
   try {
-    console.log("📩 Получены данные:", req.body);
-    console.log("📂 Загруженные файлы:", req.files);
-
     const { name, phone } = req.body;
     const files = req.files;
 
@@ -54,8 +43,8 @@ app.post("/upload", upload.array("files"), async (req, res) => {
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: "lelush.kek@gmail.com", // Замените на ваш email
-      subject: "Новая заявка с сайта",
+      to: "your-email@example.com", // Укажите свою почту
+      subject: "📩 Новая заявка с файлами",
       text: `Имя: ${name}\nТелефон: ${phone}`,
       attachments: files.map((file) => ({
         filename: file.originalname,
@@ -72,6 +61,5 @@ app.post("/upload", upload.array("files"), async (req, res) => {
   }
 });
 
-app.listen(5000, () =>
-  console.log("🚀 Сервер запущен на http://localhost:5000")
-);
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Сервер запущен на порту ${PORT}`));
